@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Video Downloader Hub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 520px;
+            box-sizing: border-box;
+        }
+        h2 {
+            color: #ff0000;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+        .description {
+            font-size: 14px;
+            color: #cccccc;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        label {
+            display: block;
+            text-align: left;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #bbb;
+        }
+        input[type="url"], input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #2a2a2a;
+            border: 2px solid #333;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #ff0000;
+            outline: none;
+        }
+        button.btn-download {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        button.btn-download:hover {
+            background-color: #cc0000;
+        }
+        #outputArea {
+            margin-top: 25px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            display: none;
+            text-align: center;
+            border: 1px dashed #444;
+        }
+        .download-box {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #333;
+        }
+        .download-link-btn {
+            display: block;
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-top: 10px;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        .download-link-btn:hover {
+            background-color: #218838;
+        }
+
+        /* 🔘 CHAT FLOATING WIDGET */
+        .chat-widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .chat-trigger-btn {
+            background-color: #ff0000;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(255,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            margin-left: auto;
+        }
+        .chat-box {
+            display: none;
+            width: 320px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .chat-header {
+            background-color: #ff0000;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-body { padding: 15px; }
+        button.btn-submit-chat {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>All Video Downloader Hub</h2>
+    <p class="description">Download any video for free! Easily fetch videos from YouTube, TikTok, Hanime, and support for all other websites.</p>
+    
+    <form id="downloaderForm" onsubmit="generateSecureLink(event)">
+        <label for="videoUrl">Paste Video Link:</label>
+        <input type="url" id="videoUrl" placeholder="Paste your video link here..." required>
+        
+        <label for="resolution">Select Target Quality:</label>
+        <select id="resolution">
+            <option value="1080">1080p Full HD</option>
+            <option value="720" selected>720p HD</option>
+            <option value="480">480p Medium</option>
+        </select>
+        
+        <button type="submit" class="btn-download">Fetch Download Links</button>
+    </form>
+    
+    <!-- PANEL ASLI INTERNAL (MUNCUL DI BAWAH KOLOM SECARA INSTAN) -->
+    <div id="outputArea">
+        <h3 id="resultTitle" style="margin-top:0; color:#ffc107; font-size:15px; text-align: left;">🔮 Processing Video...</h3>
+        <div id="downloadActionArea"></div>
+    </div>
+</div>
+
+<!-- 💬 FORMSPREE EMAIL BUG WIDGET -->
+<div class="chat-widget-container">
+    <div class="chat-box" id="chatBox">
+        <div class="chat-header">
+            <span>💬 Report an Issue</span>
+            <span style="cursor:pointer;" onclick="toggleChat()">&times;</span>
+        </div>
+        <form action="https://formspree.io" method="POST" id="bugForm" target="_blank">
+            <div class="chat-body">
+                <label for="bugUser">Your Name:</label>
+                <input type="text" name="Reporter Name" id="bugUser" placeholder="Enter your name" required>
+                <label for="bugDesc">Issue Details:</label>
+                <textarea name="Bug Description" id="bugDesc" rows="3" placeholder="Describe the error here..." required></textarea>
+                <button type="submit" class="btn-submit-chat" onclick="clearFormDelay()">Submit Report</button>
+            </div>
+        </form>
+    </div>
+    <button class="chat-trigger-btn" id="chatBtn" onclick="toggleChat()">💬</button>
+</div>
+
+<script>
+function generateSecureLink(event) {
+    event.preventDefault();
+    
+    const urlInput = document.getElementById('videoUrl').value.trim();
+    const resolution = document.getElementById('resolution').value;
+    const outputArea = document.getElementById('outputArea');
+    const resultTitle = document.getElementById('resultTitle');
+    const downloadActionArea = document.getElementById('downloadActionArea');
+
+    outputArea.style.display = 'block';
+    downloadActionArea.innerHTML = '';
+    resultTitle.innerText = "✨ Video Link Analyzed Successfully!";
+
+    // Deteksi ID video YouTube (jika mengunduh dari YouTube)
+    let videoId = '';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = urlInput.match(regExp);
+    if (match && match.length == 11) {
+        videoId = match[2];
+    }
+
+    // MEMBUAT STRUKTUR LINK DOWNLOAER RESMI YANG TIDAK AKAN PERNAH DIBLOKIR GOOGLE CHROME
+    let primaryDownloadUrl = '';
+    let backupDownloadUrl = '';
+
+    if (videoId) {
+        // Jalur khusus YouTube: Mengarah ke sistem mirror y2mate otomatis yang bersih
+        primaryDownloadUrl = "https://y2mate.com" + videoId;
+        backupDownloadUrl = "https://9xbuddy.site" + encodeURIComponent(urlInput);
+    } else {
+        // Jalur multi-web (Hanime, TikTok, dll) menggunakan mesin enkripsi universal
+        primaryDownloadUrl = "https://9xbuddy.site" + encodeURIComponent(urlInput);
+        backupDownloadUrl = "https://savefrom.net" + encodeURIComponent(urlInput);
+    }
+
+    // Render komponen tombol unduhan asli di dalam website kamu (Bebas dari pop-up blocker!)
+    downloadActionArea.innerHTML = 
+        '<div class="download-box">' +
+            '<p style="font-size: 13px; color: #fff; margin: 0 0 10px 0; text-align: left;">Your file is ready. Please select a server to download:</p>' +
+            '<a href="' + primaryDownloadUrl + '" target="_blank" rel="noopener noreferrer" class="download-link-btn">🟢 Server 1 (Fast Download ' + resolution + 'p)</a>' +
+            '<a href="' + backupDownloadUrl + '" target="_blank" rel="noopener noreferrer" class="download-link-btn" style="background-color: #007bff;">🔵 Server 2 (Backup Server)</a>' +
+        '</div>';
+}
+
+function toggleChat() {
+    const chatBox = document.getElementById('chatBox');
+    chatBox.style.display = (chatBox.style.display === 'block') ? 'none' : 'block';
+}
+
+function clearFormDelay() {
+    setTimeout(function() {
+        document.getElementById('bugUser').value = "";
+        document.getElementById('bugDesc').value = "";
+        toggleChat();
+    }, 1000);
+}
+</script>
+</body>
+</html>
