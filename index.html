@@ -81,45 +81,17 @@
             margin-top: 25px;
             background-color: #2a2a2a;
             border-radius: 8px;
-            padding: 15px;
+            padding: 20px;
             display: none;
-            text-align: left;
-        }
-        .server-box {
-            background-color: #1e1e1e;
-            border: 1px solid #444;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 12px;
-        }
-        .server-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #ffc107;
-            margin-bottom: 8px;
-        }
-        .server-btn {
-            display: inline-block;
-            background-color: #007bff;
-            color: white;
             text-align: center;
-            padding: 10px 20px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-            transition: background-color 0.2s;
-            cursor: pointer;
+            border: 1px dashed #444;
+        }
+        .server-frame {
+            width: 100%;
+            height: 220px;
             border: none;
-        }
-        .server-btn:hover {
-            background-color: #0056b3;
-        }
-        .server-btn.green {
-            background-color: #28a745;
-        }
-        .server-btn.green:hover {
-            background-color: #218838;
+            border-radius: 6px;
+            background-color: #1e1e1e;
         }
 
         /* 🔘 CHAT FLOATING WIDGET */
@@ -183,7 +155,7 @@
     <h2>All Video Downloader Hub</h2>
     <p class="description">Download any video for free! Easily fetch videos from YouTube, TikTok, Hanime, and support for all other websites.</p>
     
-    <form id="downloaderForm" onsubmit="prosesVideoUniversal(event)">
+    <form id="downloaderForm" onsubmit="prosesVideoInternal(event)">
         <label for="videoUrl">Paste Video Link:</label>
         <input type="url" id="videoUrl" placeholder="Paste your video link here..." required>
         
@@ -192,15 +164,17 @@
             <option value="1080">1080p Full HD</option>
             <option value="720" selected>720p HD</option>
             <option value="480">480p Medium</option>
+            <option value="360">360p Low</option>
         </select>
         
-        <button type="submit" class="btn-download">Generate Download Server</button>
+        <button type="submit" class="btn-download">Fetch Download Links</button>
     </form>
     
+    <!-- 🖥️ FRAME INTERNAL (TOMBOL DOWNLOAD MUNCUL DI SINI TANPA REDIRECT TAB) -->
     <div id="outputArea">
-        <h3 style="margin-top:0; color:#ff0000; font-size:16px;">Link Analysis Results:</h3>
-        <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">Click the button below to fetch your video safely:</p>
-        <div id="serverList"></div>
+        <h3 style="margin-top:0; color:#ffc107; font-size:15px; text-align: left;">🔮 Download Options Ready:</h3>
+        <p style="font-size: 11px; color: #aaa; text-align: left; margin-bottom: 15px;">Your download panel has been generated internally below. No pop-ups or external redirects.</p>
+        <div id="embedContainer"></div>
     </div>
 </div>
 
@@ -231,35 +205,33 @@ function prosesVideoUniversal(event) {
     event.preventDefault();
     
     const urlInput = document.getElementById('videoUrl').value.trim();
+    const resolution = document.getElementById('resolution').value;
     const outputArea = document.getElementById('outputArea');
-    const serverList = document.getElementById('serverList');
+    const embedContainer = document.getElementById('embedContainer');
 
     outputArea.style.display = 'block';
-    serverList.innerHTML = ''; 
+    embedContainer.innerHTML = ''; 
 
-    // Mengamankan URL menggunakan URI Encoder standar internasional
-    var encodedUrl = encodeURIComponent(urlInput);
+    // Ekstrak ID Video YouTube dari tautan biasa maupun pendek (jika mengunduh yt)
+    let videoId = '';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = urlInput.match(regExp);
+    
+    if (match && match[2].length == 11) {
+        videoId = match[2];
+    }
 
-    // 🟩 UBAH URL UTAMA: Mengalihkan jalur pencarian ke server ekstraksi publik yang 100% ramah CORS browser lokal
-    var linkY2mate = "https://y2mate.com" + encodedUrl;
-    var link9xBuddy = "https://9xbuddy.site" + encodedUrl;
-
-    var y2mateHTML = '<div class="server-box">' +
-        '<div class="server-title">🚀 Server 1 (Y2Mate Premium Downloader)</div>' +
-        '<p style="font-size:12px; color:#aaa; margin:0 0 8px 0;">Highly recommended for YouTube. Safe, lightning fast, and supports 1080p rendering.</p>' +
-        '<a href="' + linkY2mate + '" target="_blank" rel="noopener noreferrer" class="server-btn green">Download via Server 1</a>' +
-    '</div>';
-
-    var buddyHTML = '<div class="server-box">' +
-        '<div class="server-title">📦 Server 2 (Universal Bypass Engine)</div>' +
-        '<p style="font-size:12px; color:#aaa; margin:0 0 8px 0;">Best choice for TikTok, Hanime, and skipping restrictions on private video hosts.</p>' +
-        '<a href="' + link9xBuddy + '" target="_blank" rel="noopener noreferrer" class="server-btn">Download via Server 2</a>' +
-    '</div>';
-
-    if (urlInput.includes('hanime.tv') || urlInput.includes('tiktok.com')) {
-        serverList.innerHTML = buddyHTML + y2mateHTML;
-    } else {
-        serverList.innerHTML = y2mateHTML + buddyHTML;
+    // JIKA YANG DIMASUKKAN ADALAH LINK YOUTUBE
+    if (videoId) {
+        // Menggunakan Server Widget Embed Premium yang memproses tombol unduh langsung di dalam kontainer website kita
+        let embedUrl = "https://twoshotit.com" + encodeURIComponent(urlInput) + "&color=ff0000";
+        embedContainer.innerHTML = '<iframe class="server-frame" src="' + embedUrl + '" allowtransparency="true"></iframe>';
+    } 
+    // JIKA YANG DIMASUKKAN ADALAH SITUS LAIN (HANIME, TIKTOK, DLL)
+    else {
+        // Menggunakan fallback widget universal bypass yang aman dari sandboxing browser lokal
+        let embedUrl = "https://9xbuddy.site" + encodeURIComponent(urlInput);
+        embedContainer.innerHTML = '<iframe class="server-frame" src="' + embedUrl + '" style="height: 300px;"></iframe>';
     }
 }
 
