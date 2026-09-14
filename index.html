@@ -197,9 +197,10 @@
         <button type="submit" class="btn-download">Generate Download Server</button>
     </form>
     
+    <!-- AREA HASIL ANALISIS LINK -->
     <div id="outputArea">
         <h3 style="margin-top:0; color:#ff0000; font-size:16px;">Link Analysis Results:</h3>
-        <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">Click one of the server buttons below to fetch your video download link.</p>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">Click the direct link below to access your download options securely.</p>
         <div id="serverList"></div>
     </div>
 </div>
@@ -211,7 +212,6 @@
             <span>💬 Report an Issue</span>
             <span style="cursor:pointer;" onclick="toggleChat()">&times;</span>
         </div>
-        <!-- ⚠️ MASUKKAN ID FORMSPREE KAMU DI SINI (CONTOH: xnqorwby) -->
         <form action="https://formspree.io" method="POST" id="bugForm" target="_blank">
             <div class="chat-body">
                 <label for="bugUser">Your Name:</label>
@@ -240,19 +240,21 @@ function prosesVideoUniversal(event) {
 
     var encodedUrl = encodeURIComponent(urlInput);
 
+    // Menghubungkan langsung ke engine server tujuan
     var linkY2mate = "https://y2mate.com" + encodedUrl;
     var link9xBuddy = "https://9xbuddy.xyz" + encodedUrl;
 
+    // 🟩 KOREKSI TOTAL: Tombol sekarang menggunakan tag <a> HTML murni dengan rel="noopener" agar Chrome meloloskan akses tab baru tanpa blokir pop-up
     var y2mateHTML = '<div class="server-box">' +
         '<div class="server-title">🚀 Server 1 (Y2Mate Engine)</div>' +
-        '<p style="font-size:12px; color:#aaa; margin:0 0 8px 0;">Highly recommended for YouTube & mainstream platforms. Offers various format selections.</p>' +
-        '<a href="' + linkY2mate + '" target="_blank" class="server-btn green">Download via Server 1</a>' +
+        '<p style="font-size:12px; color:#aaa; margin:0 0 8px 0;">Highly recommended for YouTube. Fast processing with multiple resolution options.</p>' +
+        '<a href="' + linkY2mate + '" target="_blank" rel="noopener noreferrer" class="server-btn green">Download via Server 1</a>' +
     '</div>';
 
     var buddyHTML = '<div class="server-box">' +
         '<div class="server-title">📦 Server 2 (Universal Bypass Engine)</div>' +
-        '<p style="font-size:12px; color:#aaa; margin:0 0 8px 0;">Best choice for TikTok, Hanime, protected animations, or general adult websites.</p>' +
-        '<a href="' + link9xBuddy + '" target="_blank" class="server-btn">Download via Server 2</a>' +
+        '<p style="font-size:12px; color:#aaa; margin:0 0 8px 0;">Best choice for TikTok, Hanime, and bypassing restrictions on protected sites.</p>' +
+        '<a href="' + link9xBuddy + '" target="_blank" rel="noopener noreferrer" class="server-btn">Download via Server 2</a>' +
     '</div>';
 
     if (urlInput.includes('hanime.tv') || urlInput.includes('tiktok.com')) {
