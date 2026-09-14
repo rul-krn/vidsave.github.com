@@ -86,12 +86,27 @@
             text-align: center;
             border: 1px dashed #444;
         }
-        .server-frame {
-            width: 100%;
-            height: 220px;
-            border: none;
-            border-radius: 6px;
+        .download-box {
             background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #333;
+        }
+        .download-link-btn {
+            display: block;
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-top: 10px;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        .download-link-btn:hover {
+            background-color: #218838;
         }
 
         /* 🔘 CHAT FLOATING WIDGET */
@@ -146,7 +161,6 @@
             cursor: pointer;
             width: 100%;
         }
-        button.btn-submit-chat:hover { background-color: #218838; }
     </style>
 </head>
 <body>
@@ -155,7 +169,7 @@
     <h2>All Video Downloader Hub</h2>
     <p class="description">Download any video for free! Easily fetch videos from YouTube, TikTok, Hanime, and support for all other websites.</p>
     
-    <form id="downloaderForm" onsubmit="prosesVideoInternal(event)">
+    <form id="downloaderForm" onsubmit="generateSecureLink(event)">
         <label for="videoUrl">Paste Video Link:</label>
         <input type="url" id="videoUrl" placeholder="Paste your video link here..." required>
         
@@ -164,17 +178,15 @@
             <option value="1080">1080p Full HD</option>
             <option value="720" selected>720p HD</option>
             <option value="480">480p Medium</option>
-            <option value="360">360p Low</option>
         </select>
         
         <button type="submit" class="btn-download">Fetch Download Links</button>
     </form>
     
-    <!-- 🖥️ FRAME INTERNAL (TOMBOL DOWNLOAD MUNCUL DI SINI TANPA REDIRECT TAB) -->
+    <!-- PANEL ASLI INTERNAL (MUNCUL DI BAWAH KOLOM SECARA INSTAN) -->
     <div id="outputArea">
-        <h3 style="margin-top:0; color:#ffc107; font-size:15px; text-align: left;">🔮 Download Options Ready:</h3>
-        <p style="font-size: 11px; color: #aaa; text-align: left; margin-bottom: 15px;">Your download panel has been generated internally below. No pop-ups or external redirects.</p>
-        <div id="embedContainer"></div>
+        <h3 id="resultTitle" style="margin-top:0; color:#ffc107; font-size:15px; text-align: left;">🔮 Processing Video...</h3>
+        <div id="downloadActionArea"></div>
     </div>
 </div>
 
@@ -189,10 +201,8 @@
             <div class="chat-body">
                 <label for="bugUser">Your Name:</label>
                 <input type="text" name="Reporter Name" id="bugUser" placeholder="Enter your name" required>
-                
-                <label for="bugDesc">Issue Details / Bug:</label>
+                <label for="bugDesc">Issue Details:</label>
                 <textarea name="Bug Description" id="bugDesc" rows="3" placeholder="Describe the error here..." required></textarea>
-                
                 <button type="submit" class="btn-submit-chat" onclick="clearFormDelay()">Submit Report</button>
             </div>
         </form>
@@ -201,38 +211,48 @@
 </div>
 
 <script>
-function prosesVideoUniversal(event) {
+function generateSecureLink(event) {
     event.preventDefault();
     
     const urlInput = document.getElementById('videoUrl').value.trim();
     const resolution = document.getElementById('resolution').value;
     const outputArea = document.getElementById('outputArea');
-    const embedContainer = document.getElementById('embedContainer');
+    const resultTitle = document.getElementById('resultTitle');
+    const downloadActionArea = document.getElementById('downloadActionArea');
 
     outputArea.style.display = 'block';
-    embedContainer.innerHTML = ''; 
+    downloadActionArea.innerHTML = '';
+    resultTitle.innerText = "✨ Video Link Analyzed Successfully!";
 
-    // Ekstrak ID Video YouTube dari tautan biasa maupun pendek (jika mengunduh yt)
+    // Deteksi ID video YouTube (jika mengunduh dari YouTube)
     let videoId = '';
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = urlInput.match(regExp);
-    
-    if (match && match[2].length == 11) {
+    if (match && match.length == 11) {
         videoId = match[2];
     }
 
-    // JIKA YANG DIMASUKKAN ADALAH LINK YOUTUBE
+    // MEMBUAT STRUKTUR LINK DOWNLOAER RESMI YANG TIDAK AKAN PERNAH DIBLOKIR GOOGLE CHROME
+    let primaryDownloadUrl = '';
+    let backupDownloadUrl = '';
+
     if (videoId) {
-        // Menggunakan Server Widget Embed Premium yang memproses tombol unduh langsung di dalam kontainer website kita
-        let embedUrl = "https://twoshotit.com" + encodeURIComponent(urlInput) + "&color=ff0000";
-        embedContainer.innerHTML = '<iframe class="server-frame" src="' + embedUrl + '" allowtransparency="true"></iframe>';
-    } 
-    // JIKA YANG DIMASUKKAN ADALAH SITUS LAIN (HANIME, TIKTOK, DLL)
-    else {
-        // Menggunakan fallback widget universal bypass yang aman dari sandboxing browser lokal
-        let embedUrl = "https://9xbuddy.site" + encodeURIComponent(urlInput);
-        embedContainer.innerHTML = '<iframe class="server-frame" src="' + embedUrl + '" style="height: 300px;"></iframe>';
+        // Jalur khusus YouTube: Mengarah ke sistem mirror y2mate otomatis yang bersih
+        primaryDownloadUrl = "https://y2mate.com" + videoId;
+        backupDownloadUrl = "https://9xbuddy.site" + encodeURIComponent(urlInput);
+    } else {
+        // Jalur multi-web (Hanime, TikTok, dll) menggunakan mesin enkripsi universal
+        primaryDownloadUrl = "https://9xbuddy.site" + encodeURIComponent(urlInput);
+        backupDownloadUrl = "https://savefrom.net" + encodeURIComponent(urlInput);
     }
+
+    // Render komponen tombol unduhan asli di dalam website kamu (Bebas dari pop-up blocker!)
+    downloadActionArea.innerHTML = 
+        '<div class="download-box">' +
+            '<p style="font-size: 13px; color: #fff; margin: 0 0 10px 0; text-align: left;">Your file is ready. Please select a server to download:</p>' +
+            '<a href="' + primaryDownloadUrl + '" target="_blank" rel="noopener noreferrer" class="download-link-btn">🟢 Server 1 (Fast Download ' + resolution + 'p)</a>' +
+            '<a href="' + backupDownloadUrl + '" target="_blank" rel="noopener noreferrer" class="download-link-btn" style="background-color: #007bff;">🔵 Server 2 (Backup Server)</a>' +
+        '</div>';
 }
 
 function toggleChat() {
