@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Video Downloader Hub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 520px;
+            box-sizing: border-box;
+        }
+        h2 {
+            color: #ff0000;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+        .description {
+            font-size: 14px;
+            color: #cccccc;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        label {
+            display: block;
+            text-align: left;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #bbb;
+        }
+        input[type="url"], input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #2a2a2a;
+            border: 2px solid #333;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #ff0000;
+            outline: none;
+        }
+        button.btn-download {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        button.btn-download:hover {
+            background-color: #cc0000;
+        }
+        #outputArea {
+            margin-top: 25px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 15px;
+            display: none;
+            text-align: left;
+        }
+        .server-box {
+            background-color: #1e1e1e;
+            border: 1px solid #444;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        .server-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffc107;
+            margin-bottom: 8px;
+        }
+        .server-btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .server-btn:hover {
+            background-color: #0056b3;
+        }
+        .server-btn.green {
+            background-color: #28a745;
+        }
+        .server-btn.green:hover {
+            background-color: #218838;
+        }
+
+        /* 🔘 CHAT FLOATING WIDGET */
+        .chat-widget-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .chat-trigger-btn {
+            background-color: #ff0000;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(255,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            margin-left: auto;
+        }
+        .chat-box {
+            display: none;
+            width: 320px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .chat-header {
+            background-color: #ff0000;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-body { padding: 15px; }
+        button.btn-submit-chat {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button.btn-submit-chat:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>All Video Downloader Hub</h2>
+    <p class="description">Download any video for free! Easily fetch videos from YouTube, TikTok, Hanime, and support for all other websites.</p>
+    
+    <form id="downloaderForm" onsubmit="prosesVideoUniversal(event)">
+        <label for="videoUrl">Paste Video Link:</label>
+        <input type="url" id="videoUrl" placeholder="Paste your video link here..." required>
+        
+        <label for="resolution">Select Target Quality:</label>
+        <select id="resolution">
+            <option value="1080">1080p Full HD</option>
+            <option value="720" selected>720p HD</option>
+            <option value="480">480p Medium</option>
+        </select>
+        
+        <button type="submit" class="btn-download">Generate Download Server</button>
+    </form>
+    
+    <div id="outputArea">
+        <h3 style="margin-top:0; color:#ff0000; font-size:16px;">Link Analysis Results:</h3>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">Click one of the server buttons below to fetch your video download link.</p>
+        <div id="serverList"></div>
+    </div>
+</div>
+
+<!-- 💬 FORMSPREE EMAIL BUG WIDGET -->
+<div class="chat-widget-container">
+    <div class="chat-box" id="chatBox">
+        <div class="chat-header">
+            <span>💬 Report an Issue</span>
+            <span style="cursor:pointer;" onclick="toggleChat()">&times;</span>
+        </div>
+        <!-- ⚠️ MASUKKAN ID FORMSPREE KAMU DI BAWAH INI -->
+        <form action="https://formspree.io" method="POST" id="bugForm" target="_blank">
+            <div class="chat-body">
+                <label for="bugUser">Your Name:</label>
+                <input type="text" name="Reporter Name" id="bugUser" placeholder="Enter your name" required>
+                
+                <label for="bugDesc">Issue Details / Bug:</label>
+                <textarea name="Bug Description" id="bugDesc" rows="3" placeholder="Describe the error here..." required></textarea>
+                
+                <button type="submit" class="btn-submit-chat" onclick="clearFormDelay()">Submit Report</button>
+            </div>
+        </form>
+    </div>
+    <button class="chat-trigger-btn" id="chatBtn" onclick="toggleChat()">💬</button>
+</div>
+
+<script>
+function prosesVideoUniversal(event) {
+    event.preventDefault();
+    
+    const urlInput = document.getElementById('videoUrl').value.trim();
+    const outputArea = document.getElementById('outputArea');
+    const serverList = document.getElementById('serverList');
+
+    outputArea.style.display = 'block';
+    serverList.innerHTML = ''; 
+
+    var encodedUrl = encodeURIComponent(urlInput);
+
+    var linkY2mate = "https://y2mate.com" + encodedUrl;
+    var link9xBuddy = "https://9xbuddy.xyz" + encodedUrl;
+
+    var y2mateHTML = '<div class="server-box">' +
+        '<div class="server-title">🚀 Server 1 (Y2Mate Engine)</div>' +
+        '<p style="font-size:12px; color:#aaa; margin:0 0 8px 0;">Highly recommended for YouTube & mainstream platforms. Offers various format selections.</p>' +
+        '<a href="' + linkY2mate + '" target="_blank" class="server-btn green">Download via Server 1</a>' +
+    '</div>';
+
+    var buddyHTML = '<div class="server-box">' +
+        '<div class="server-title">📦 Server 2 (Universal Bypass Engine)</div>' +
+        '<p style="font-size:12px; color:#aaa; margin:0 0 8px 0;">Best choice for TikTok, Hanime, protected animations, or general adult websites.</p>' +
+        '<a href="' + link9xBuddy + '" target="_blank" class="server-btn">Download via Server 2</a>' +
+    '</div>';
+
+    if (urlInput.includes('hanime.tv') || urlInput.includes('tiktok.com')) {
+        serverList.innerHTML = buddyHTML + y2mateHTML;
+    } else {
+        serverList.innerHTML = y2mateHTML + buddyHTML;
+    }
+}
+
+function toggleChat() {
+    const chatBox = document.getElementById('chatBox');
+    chatBox.style.display = (chatBox.style.display === 'block') ? 'none' : 'block';
+}
+
+function clearFormDelay() {
+    setTimeout(function() {
+        document.getElementById('bugUser').value = "";
+        document.getElementById('bugDesc').value = "";
+        toggleChat();
+    }, 1000);
+}
+</script>
+</body>
+</html>
