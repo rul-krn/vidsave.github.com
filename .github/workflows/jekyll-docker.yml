@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengunduh Video Aman</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #121212; color: white; }
+        input { padding: 10px; width: 60%; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; background: #ff0000; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>All Video Downloader Hub</h2>
+    <p>Unduh video aman langsung dari browser Anda</p>
+    
+    <!-- Kolom Input dan Tombol -->
+    <input type="url" id="inputUrl" placeholder="Tempel tautan video di sini..." required>
+    <button id="tombolDownload">Unduh Sekarang</button>
+
+    <!-- MEMANGGIL OTAK JAVASCRIPT -->
+    <script src="script.js"></script>
+</body>
+</html>
