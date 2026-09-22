@@ -1,47 +1,192 @@
-<script>
-async function downloadVideo() {
-    const url = document.getElementById('videoUrl').value.trim();
-    const statusDiv = document.getElementById('status');
-
-    if (!url) {
-        statusDiv.innerHTML = "<span style='color: red;'>Silakan masukkan URL terlebih dahulu!</span>";
-        return;
-    }
-
-    statusDiv.innerText = "Menghubungkan ke server pihak ketiga...";
-
-    try {
-        // MENGGUNAKAN PIHAK KETIGA: Kita lewatkan URL melalui CORS Proxy gratis
-        // Ini mengakali browser agar mengira data datang dari tempat yang aman
-        const proxyUrl = `https://allorigins.win{encodeURIComponent(url)}`;
-        
-        const response = await fetch(proxyUrl);
-        
-        if (!response.ok) {
-            throw new Error("Server pihak ketiga gagal mengambil video.");
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koleksi Game Statis Saya</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = blobUrl;
-        
-        // Menentukan nama file otomatis
-        const fileName = 'video_download_' + Date.now() + '.mp4';
-        a.download = fileName;
-        
-        document.body.appendChild(a);
-        a.click();
-        
-        window.URL.revokeObjectURL(blobUrl);
-        document.body.removeChild(a);
-        
-        statusDiv.innerHTML = "<span style='color: green;'>Unduhan berhasil lewat pihak ketiga!</span>";
-    } catch (error) {
-        console.error(error);
-        statusDiv.innerHTML = "<span style='color: red;'>Gagal. Web pihak ketiga tidak dapat menjangkau video ini atau format tidak didukung.</span>";
-    }
-}
-</script>
+        h1 {
+            color: #00ffff;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #a0a0c0;
+            margin-bottom: 20px;
+        }
+
+        #game-container {
+            background-color: #161625;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        canvas {
+            border: 4px solid #00ffff;
+            background-color: #0f0f1a;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #score-board {
+            font-size: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .instructions {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #8888a0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 Game Center Statis</h1>
+    <p>Selamat datang di web game saya yang dihosting gratis di GitHub!</p>
+
+    <div id="game-container">
+        <!-- Area tempat game digambar -->
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="score-board">Skor: <span id="score">0</span></div>
+        <div class="instructions">Gunakan tombol <b>Panah (Arrow Keys)</b> di keyboard untuk bergerak.</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("score");
+
+        const grid = 20;
+        let count = 0;
+        let score = 0;
+
+        let snake = {
+            x: 160,
+            y: 160,
+            dx: grid,
+            dy: 0,
+            cells: [],
+            maxCells: 4
+        };
+
+        let apple = {
+            x: 320,
+            y: 320
+        };
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+
+        // Loop Game Utama
+        function loop() {
+            requestAnimationFrame(loop);
+
+            // Mengatur kecepatan game (makin besar angka, makin lambat)
+            if (++count < 6) {
+                return;
+            }
+            count = 0;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Gerakkan ular
+            snake.x += snake.dx;
+            snake.y += snake.dy;
+
+            // Jika ular menabrak dinding, muncul di sisi sebaliknya
+            if (snake.x < 0) snake.x = canvas.width - grid;
+            else if (snake.x >= canvas.width) snake.x = 0;
+            
+            if (snake.y < 0) snake.y = canvas.height - grid;
+            else if (snake.y >= canvas.height) snake.y = 0;
+
+            // Catat posisi kepala ular
+            snake.cells.unshift({x: snake.x, y: snake.y});
+
+            // Hapus ekor ular seiring berjalan
+            if (snake.cells.length > snake.maxCells) {
+                snake.cells.pop();
+            }
+
+            // Gambar Apel
+            ctx.fillStyle = '#ff0055';
+            ctx.fillRect(apple.x, apple.y, grid - 1, grid - 1);
+
+            // Gambar Ular
+            ctx.fillStyle = '#00ff88';
+            snake.cells.forEach(function(cell, index) {
+                ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
+
+                // Ular memakan apel
+                if (cell.x === apple.x && cell.y === apple.y) {
+                    snake.maxCells++;
+                    score += 10;
+                    scoreElement.textContent = score;
+
+                    // Pindahkan apel ke tempat acak
+                    apple.x = getRandomInt(0, 20) * grid;
+                    apple.y = getRandomInt(0, 20) * grid;
+                }
+
+                // Cek tabrakan dengan badan sendiri (Game Over)
+                for (let i = index + 1; i < snake.cells.length; i++) {
+                    if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+                        // Reset Game
+                        snake.x = 160;
+                        snake.y = 160;
+                        snake.cells = [];
+                        snake.maxCells = 4;
+                        snake.dx = grid;
+                        snake.dy = 0;
+                        score = 0;
+                        scoreElement.textContent = score;
+                        apple.x = getRandomInt(0, 20) * grid;
+                        apple.y = getRandomInt(0, 20) * grid;
+                    }
+                }
+            });
+        }
+
+        // Kontrol Keyboard
+        document.addEventListener('keydown', function(e) {
+            // Mencegah ular berbalik arah instan ke dirinya sendiri
+            if (e.which === 37 && snake.dx === 0) { // Kiri
+                snake.dx = -grid;
+                snake.dy = 0;
+            }
+            else if (e.which === 38 && snake.dy === 0) { // Atas
+                snake.dy = -grid;
+                snake.dx = 0;
+            }
+            else if (e.which === 39 && snake.dx === 0) { // Kanan
+                snake.dx = grid;
+                snake.dy = 0;
+            }
+            else if (e.which === 40 && snake.dy === 0) { // Bawah
+                snake.dy = grid;
+                snake.dx = 0;
+            }
+        });
+
+        // Jalankan game pertama kali
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>
